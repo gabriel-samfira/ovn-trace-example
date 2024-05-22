@@ -15,7 +15,7 @@ Astfel, aplicația `ovn-trace` poate să aplice aceleași reguli pentru a determ
 
 ## Cazul 1
 
-În cazul 1 vom simula un pachet ICMP de la un VM numit `jammy-test` conectat la o rețea numită `int-net`, către un IP de pe internet (`8.8.8.8`). Vom simula de asemenea și un pachet TCP de la același VM către același IP, pe portul 80.
+În cazul 1 vom simula un pachet ICMP de la un VM numit `jammy-test` conectat la o rețea numită `int-net`, către un IP de pe internet (`8.8.8.8`). Vom simula de asemenea și un pachet TCP de la același VM către același IP, pe portul 22.
 
 Pentru a putea să simulăm traseul dorit, trebuie să colectăm informațiile necesare pentru redactarea comenzii `ovn-trace`. Această procedură poate să difere în funcție de caz. Pentru cazul 1, vom avea nevoie de următoarele informații:
 
@@ -328,7 +328,7 @@ Observăm că pentru portul `06bc20` in câmpul `nat_addresses` avem un câmp:
 "fa:16:3e:c0:63:5e 10.8.21.212 is_chassis_resident(\"e4f83d35-baad-41b3-af74-853dc6d308bd\")"
 ```
 
-Această mapare ne spune că traficul spre exterior va trece prin floating IP-ul asociat acestui VM, iar portul pe care este instalat ARP responder-ul pentru acest FIP este instalat pe portul `e4f83d35-baad-41b3-af74-853dc6d308bd`. Verificăm unde este `Port_binding` făcut pentru acest port:
+Această mapare ne spune că traficul spre exterior va trece prin floating IP-ul asociat acestui VM, iar portul pe care este instalat ARP responder-ul pentru acest FIP este `e4f83d35-baad-41b3-af74-853dc6d308bd`. Verificăm unde este `Port_binding` făcut pentru acest port:
 
 ```bash
 [root@osp-node-1 /]# ovn-sbctl list Port_Binding e4f83d35-baad-41b3-af74-853dc6d308bd
@@ -483,7 +483,7 @@ listening on enp1s0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
 
 Observăm pachetele generate.
 
-Pentru a testa conectivitatea către portul 80, comanda `ovn-trace` va fi similară cu cea de mai sus, cu excepția faptului că vom schimba portul ICMP cu portul 80:
+Pentru a testa conectivitatea către portul 22, comanda `ovn-trace` va fi similară cu cea de mai sus, cu excepția faptului că vom schimba portul ICMP cu portul 22:
 
 ```bash
 ovn-trace --ovs neutron-8e486692-3b40-4875-8243-052b5baf31a6 \ 
@@ -506,7 +506,7 @@ Rezultatul comenzii este asemănător cu rezultatul obținut pentru ICMP.
 
 ## Cazul 2
 
-În cazul 2 vom folosi același VM însă vom modifica security group-ul să nu permita accesul pe portul 80 "egress".
+În cazul 2 vom folosi același VM însă vom modifica security group-ul să nu permita accesul pe portul 22 "egress".
 
 Preluăm proiectul și security group-ul setat pe VM-ul `jammy-test`:
 
@@ -542,8 +542,6 @@ gabriel@arrakis:~$ openstack security group rule list --egress beb6f07a-ca99-4b6
 | 96658621-42a1-4aac-aedb-42b3a869bb0c | None        | IPv4      | 0.0.0.0/0 |            | egress    | None                  | None                 |
 +--------------------------------------+-------------+-----------+-----------+------------+-----------+-----------------------+----------------------+
 ```
-
-Înainte să ștergem regula ce permite accesul `egress` că
 
 Ștergem regula egress implicită ce permite traficul pe orice port:
 
